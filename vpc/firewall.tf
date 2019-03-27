@@ -19,7 +19,7 @@ resource "google_compute_firewall" "web_firewall" {
 
   allow {
     protocol = "tcp"
-    ports    = ["8080"]
+    ports    = ["8080","80"]
   }
   source_ranges = ["0.0.0.0/0"]
   source_tags = ["web"]

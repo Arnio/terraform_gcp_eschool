@@ -9,7 +9,7 @@ resource "google_compute_forwarding_rule" "default" {
 resource "google_compute_target_pool" "default" {
   project          = "${var.project}"
   name             = "lbbackend"
-  instances = ["${var.web_link}"]
+  instances = ["${split(",",var.web_link)}"]
   
   region           = "${var.region}"
   session_affinity = "NONE"

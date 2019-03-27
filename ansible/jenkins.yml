@@ -1,0 +1,105 @@
+- name: Wait until the file Jenkins sectets is present before continuing
+  wait_for:
+    path: /var/lib/jenkins/secrets/initialAdminPassword    
+
+- name: read admin pwd
+  command: cat /var/lib/jenkins/secrets/initialAdminPassword
+  register: adminpwd
+
+- name: Wait untils Jenkins web is available
+  shell: curl --head --silent http://localhost:8080/login
+  register: result
+  until: result.stdout.find("200 OK") != -1
+  retries: 12
+  delay: 5
+
+- name: unlock and add admin user
+  jenkins_script:
+   script: |
+    import jenkins.model.*
+    import hudson.security.*
+    def instance = Jenkins.getInstance()
+    def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+    hudsonRealm.createAccount('${user_name}', '${user_pwd}')
+    instance.setSecurityRealm(hudsonRealm)
+    def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
+    strategy.setAllowAnonymousRead(false)
+    instance.setAuthorizationStrategy(strategy)
+    instance.save()
+   args:
+    user_name: "{{jenkins_user}}"
+    user_pwd: "{{jenkins_pass}}" 
+   user: admin
+   password: "{{ adminpwd.stdout }}"
+
+- name: complete setup wizard
+  jenkins_script:
+   script: |
+    import static jenkins.model.Jenkins.instance as jenkins
+    import jenkins.install.InstallState
+    if (!jenkins.installState.isSetupComplete()) {
+      InstallState.INITIAL_SETUP_COMPLETED.initializeState()
+    }
+   user: admin
+   password: "{{ adminpwd.stdout }}"
+
+- name: install plugin
+  jenkins_plugin:
+    name: "{{item}}"
+    loop:  
+      - dashboard-view
+      - cloudbees-folder
+      - antisamy-markup-formatter
+      - build-name-setter
+      - build-timeout
+      - config-file-provider
+      - credentials-binding
+      - embeddable-build-status
+      - rebuild ssh-agent
+      - throttle-concurrents
+      - timestamper
+      - ws-cleanup
+      - ant gradle
+      - msbuild
+      - nodejs
+      - checkstyle
+      - cobertura
+      - htmlpublisher
+      - junit warnings
+      - xunit
+      - workflow-aggregator
+      - github-organization-folder
+      - pipeline-stage-view
+      - build-pipeline-plugin
+      - conditional-buildstep
+      - jenkins-multijob-plugin
+      - parameterized-trigger
+      - copyartifact
+      - bitbucket
+      - clearcase
+      - cvs
+      - git
+      - git-parameter
+      - github
+      - gitlab-plugin
+      - p4
+      - repo
+      - subversion
+      - teamconcert
+      - tfs
+      - matrix-project
+      - ssh-slaves
+      - windows-slaves
+      - matrix-auth
+      - pam-auth
+      - ldap
+      - role-strategy
+      - active-directory
+      - email-ext
+      - emailext-template
+      - mailer
+      - publish-over-ssh
+      - ssh
+    state: latest
+    url_username: admin
+    url_password: "{{ adminpwd.stdout}}"

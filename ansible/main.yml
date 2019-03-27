@@ -1,0 +1,19 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - include: /tmp/ansible/all.yml
+
+- hosts: localhost
+  become: true
+  vars_files: /tmp/ansible/vars.yml
+  tasks:
+    - include: /tmp/ansible/ci.yml
+    - include: /tmp/ansible/jenkins.yml
+
+- hosts: web
+  become: true
+  vars_files: /tmp/ansible/vars.yml
+  tasks:
+    - include: /tmp/ansible/web.yml
+...

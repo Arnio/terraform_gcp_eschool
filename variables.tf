@@ -97,3 +97,16 @@ variable user_password {
   description = "The password for the default user. If not set, a random one will be generated and available in the generated_user_password output variable."
   default     = "devops095eSchool"
 }
+  
+variable instance_name_web {
+  description = "instance name web"
+  default     = "web"
+}
+variable count_web {
+  description = "count"
+  default     = "2"
+}
+variable instance_name_bastion {
+  description = "instance name bastion"
+  default     = "bastion"
+}

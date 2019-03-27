@@ -6,5 +6,4 @@
   variable "machine_type_web" {}
   variable "instance_name_bastion" {}
   variable "machine_type_bastion" {}
-  variable "count_bastion" {}
   variable "private_subnetwork" {}
